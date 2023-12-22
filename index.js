@@ -1,8 +1,10 @@
 const express = require('express');
 const cors = require('cors')
 const main = require('./database') //database import
+const session = require("express-session");
+const passport = require("passport");
 
-
+const {isAuth} = require('./services/authService')
 //routes import
 const productRoute = require('./routes/ProductRoutes')
 const brandRoute = require('./routes/Brand')
@@ -14,22 +16,27 @@ const orderRoute = require("./routes/Order");
 
 const server = express()
 
+// Express middleware for session
+server.use(session({ secret: 'your-secret-key', resave: false, saveUninitialized: false }));
+
+// Initialize Passport.js and restore authentication state, if any, from the session
+
+server.use(passport.authenticate('session'));
 
 server.use(cors(
     {exposedHeaders:['X-Total-Count']}
 ))
 
-
 server.use(express.json())
 
-
-server.use('/products',productRoute)
-server.use("/brands", brandRoute)
-server.use("/categories", categoryRoute)
+server.use('/products',isAuth,productRoute)
+server.use("/brands", isAuth, brandRoute);
+server.use("/categories", isAuth, categoryRoute);
 server.use("/auth", authRoute);
-server.use("/users", userRoute);
-server.use("/cart", cartRoute);
-server.use("/orders", orderRoute);
+server.use("/users", isAuth, userRoute);
+server.use("/cart", isAuth, cartRoute);
+server.use("/orders", isAuth, orderRoute);
+
 
 
 

@@ -1,5 +1,6 @@
 const {User} = require('../models/User');
-const bcrypt = require('bcrypt')
+const bcrypt = require('bcrypt');
+const { sanitizedUser } = require('../services/authService');
 
 exports.createUser= async (req, res) => {
   try {
@@ -17,7 +18,15 @@ exports.createUser= async (req, res) => {
       const user = new User(req.body);
       user.password = hash;
       const response = await user.save();
-      res.status(201).json({id:response.id,email:response.email,name:response.name,role:response.role});
+      
+      req.login(sanitizedUser(response), (err) => {
+        if (err) {
+          return res.status(400).json(err);
+        } else {
+          res.status(201).json(sanitizedUser(response));
+        }
+      });
+
     });
       
   } 
@@ -27,36 +36,6 @@ exports.createUser= async (req, res) => {
 };
 
 exports.checkUser = async (req, res) => {
-  try {
-    const email = req.body.email;
-    const password = req.body.password;
-
-    const user = await User.findOne({ $or: [{ email }] });
-    //console.log(user)
-    if (user) {
-      bcrypt.compare(password, user.password, (err, result) => {
-        if (err) {
-          return res
-            .status(500)
-            .json({ success: true, error: "Something Went Wrong" });
-        }
-        if (result == true) {
-          return res
-            .status(200)
-            .json({
-              id: user.id,
-              email: user.email,
-              name: user.name,
-              role: user.role,
-            });
-        } else {
-          return res.status(401).json({ error: "incorrect password" });
-        }
-      });
-    } else {
-      res.status(404).json({ error: "user not found" });
-    }
-  } catch (err) {
-    res.status(500).json({ error: err });
-  }
+  res.json(req.user)
 };
+

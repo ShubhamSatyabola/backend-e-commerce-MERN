@@ -26,7 +26,7 @@ exports.fetchAllProducts= async (req, res) => {
             _limit = 10,
           } = req.query;
           // console.log(req.query);
-          const filter = {  }
+          const filter = {delete:{$ne:true}}
           if (brand) {
             filter.brand = { $in: brand.split(",") };
           }
