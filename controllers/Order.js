@@ -4,7 +4,9 @@ const mongoose = require('mongoose')
 
 exports.createOrder = async (req,res) => {
     try{
-        const order = new Order(req.body)
+      const newOrder = req.body
+      newOrder.userId = req.user.id
+        const order = new Order(newOrder)
         await order.save()
         // console.log(order)
         res.status(201).json(order)
@@ -16,7 +18,7 @@ exports.createOrder = async (req,res) => {
 
 exports.fetchUserOrderById = async (req, res) => {
   try {
-    const { userId } = req.query;
+    const  userId  = req.user.id;
     // console.log(id);
      if (!mongoose.Types.ObjectId.isValid(userId)) {
        return res.status(400).json({ error: "something went wrong" });

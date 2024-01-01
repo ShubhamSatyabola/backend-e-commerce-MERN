@@ -5,7 +5,7 @@ exports.addToCart = async (req, res) => {
   try {
     // const{ userId,productId} = req.body // Extract user ID from the request parameters
     
-
+      const userId = req.user.id
     // Check if the user ID and product ID are valid
     // if (
     //   !mongoose.Types.ObjectId.isValid(userId) ||
@@ -13,9 +13,10 @@ exports.addToCart = async (req, res) => {
     // ) {
     //   return res.status(400).json({ error: "Invalid user or product ID" });
     // }
-
-   const cart = new Cart(req.body)
-   await cart.save()
+    const Item = req.body
+    Item.userId = userId
+  const cart = new Cart(Item)
+  await cart.save()
 
     // Send the updated user as a JSON response
     res.status(201).json(cart);
@@ -28,7 +29,7 @@ exports.addToCart = async (req, res) => {
 
 exports.getCardById = async (req, res) => {
   try {
-    const userId = req.query.user;
+    const userId = req.user.id;
 
     // Check if the user ID is valid
     if (!mongoose.Types.ObjectId.isValid(userId)) {

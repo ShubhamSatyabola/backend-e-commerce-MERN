@@ -2,11 +2,11 @@ const {User} = require('../models/User')
 
 exports.fetchUserById = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { id } = req.user;
     // console.log(id);
     const user = await User.findById(id);
     // console.log(product);
-    res.status(200).json({id:user.id,email:user.email,name:user.name,addresses:user.addresses});
+    res.status(200).json({email:user.email,name:user.name,addresses:user.addresses,role:user.role});
   } catch (err) {
     res.status(401).json(err);
     // console.log(err)
@@ -15,7 +15,7 @@ exports.fetchUserById = async (req, res) => {
 
 exports.updateUser = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { id } = req.user;
     // console.log(id);
     const user = await User.findByIdAndUpdate(id,req.body,{new:true});
     // console.log(product);

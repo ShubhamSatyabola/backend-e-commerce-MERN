@@ -6,8 +6,8 @@ const router = express.Router();
 
 
 
-router.get("/:id", fetchUserById);
-router.patch('/:id',updateUser)
+router.get("/", fetchUserById);
+router.patch('/',updateUser)
 
 
 

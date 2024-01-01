@@ -1,5 +1,6 @@
 const {User} = require('../models/User');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken')
 const { sanitizedUser } = require('../services/authService');
 
 exports.createUser= async (req, res) => {
@@ -10,7 +11,7 @@ exports.createUser= async (req, res) => {
     if (existingUser) {
       return res
         .status(400)
-        .json({ error: " email is already taken" });
+        .json( " email is already taken" );
     }
     const saltRounds = 10;
     bcrypt.hash(req.body.password, saltRounds, async (err, hash) => {
@@ -23,10 +24,13 @@ exports.createUser= async (req, res) => {
         if (err) {
           return res.status(400).json(err);
         } else {
-          res.status(201).json(sanitizedUser(response));
+          const token = jwt.sign(
+            sanitizedUser(response),
+            process.env.JWT_SECRET
+          );
+          res.cookie("jwt", token, { httpOnly: true, expires:new Date(Date.now()+ 3600000) }).status(201).json(token);
         }
       });
-
     });
       
   } 
@@ -36,6 +40,27 @@ exports.createUser= async (req, res) => {
 };
 
 exports.checkUser = async (req, res) => {
-  res.json(req.user)
+  try {
+    const token = jwt.sign(req.user, process.env.JWT_SECRET);
+    res
+      .cookie("jwt", token, {
+        httpOnly: true,
+        expires: new Date(Date.now() + 3600000),
+      })
+      .status(201)
+      .json(token);
+  } catch (err) {
+    console.log((err));
+    res.status(500).json('something went wrong');
+  }
+
+};
+exports.checkAuth = async (req, res) => {
+  if (req.user) {
+    const token = jwt.sign(req.user, process.env.JWT_SECRET);
+    res.json(token);
+  } else {
+    res.sendStatus(401);
+  }
 };
 

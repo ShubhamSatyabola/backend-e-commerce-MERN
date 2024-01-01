@@ -5,7 +5,7 @@ const { createOrder, fetchUserOrderById, fetchAllOrders, updateOrder } = require
 const router = express.Router();
 
 router.post("/", createOrder);
-router.get("/", fetchUserOrderById);
+router.get("/userOrders", fetchUserOrderById);
 router.get('/admin',fetchAllOrders)
 router.patch("/admin/:orderId", updateOrder);
 

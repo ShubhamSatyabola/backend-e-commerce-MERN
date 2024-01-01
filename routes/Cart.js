@@ -5,7 +5,7 @@ const { addToCart, getCardById, updateCart, deleteCartItem } = require("../contr
 const router = express.Router();
 
 router.post("/", addToCart);
-router.get("/", getCardById);
+router.get("/getCart", getCardById);
 router.patch("/:id", updateCart);
 router.delete("/:id", deleteCartItem);
 
