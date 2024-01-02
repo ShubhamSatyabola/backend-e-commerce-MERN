@@ -28,6 +28,7 @@ server.use(express.static(path.resolve(__dirname, "build")));
 
 
 // stripe webhook
+const endpointSecret = process.env.ENDPOINT_SECRET;
 server.post(
   "/webhook",
   express.raw({ type: "application/json" }),
@@ -103,7 +104,6 @@ server.get('*', (req, res) =>
 
 
 //payment
-const endpointSecret = process.env.ENDPOINT_SECRET;
 
 
 server.post("/create-payment-intent", async (req, res) => {
