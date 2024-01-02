@@ -26,6 +26,7 @@ const { checkAuth } = require('./controllers/Auth');
 const server = express()
 server.use(express.static(path.resolve(__dirname, "build")));
 
+
 // stripe webhook
 server.post(
   "/webhook",
@@ -94,8 +95,16 @@ server.use("/cart", isAuth(), cartRoute);
 server.use("/orders", isAuth(), orderRoute);
 server.use("/bypass", passport.authenticate("jwt"), checkAuth);
 
+
+// this line we add to make react router work in case of other routes doesnt match
+server.get('*', (req, res) =>
+  res.sendFile(path.resolve('build', 'index.html'))
+);
+
+
 //payment
 const endpointSecret = process.env.ENDPOINT_SECRET;
+
 
 server.post("/create-payment-intent", async (req, res) => {
   const { items } = req.body;
@@ -103,12 +112,22 @@ server.post("/create-payment-intent", async (req, res) => {
 
   // Create a PaymentIntent with the order amount and currency
   const paymentIntent = await stripe.paymentIntents.create({
-    amount: items.totalAmount*100,
+    amount: items.totalAmount * 100,
     currency: "inr",
     description: "Export transaction description",
     shipping: {
       name: items.user.email,
-      address: items.address, 
+      address: {
+        city: "San Francisco",
+        country: "US",
+        line1: "510 Townsend St",
+        line2: null,
+        postal_code: "98140",
+        state: "CA",
+      },
+    },
+    metadata: {
+      orderId:items.id
     },
     // In the latest version of the API, specifying the `automatic_payment_methods` parameter is optional because Stripe enables its functionality by default.
     automatic_payment_methods: {

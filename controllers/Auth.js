@@ -28,7 +28,7 @@ exports.createUser= async (req, res) => {
             sanitizedUser(response),
             process.env.JWT_SECRET
           );
-          res.cookie("jwt", token, { httpOnly: true, expires:new Date(Date.now()+ 3600000) }).status(201).json(token);
+          res.cookie("jwt", token, { httpOnly: true, expires:new Date(Date.now()+ 3600000) }).status(201).json({id:response.id,role:response.role});
         }
       });
     });
@@ -41,6 +41,7 @@ exports.createUser= async (req, res) => {
 
 exports.checkUser = async (req, res) => {
   try {
+    const user = req.user
     const token = jwt.sign(req.user, process.env.JWT_SECRET);
     res
       .cookie("jwt", token, {
@@ -48,7 +49,7 @@ exports.checkUser = async (req, res) => {
         expires: new Date(Date.now() + 3600000),
       })
       .status(201)
-      .json(token);
+      .json({id:user.id,role:user.role});
   } catch (err) {
     console.log((err));
     res.status(500).json('something went wrong');
@@ -58,7 +59,7 @@ exports.checkUser = async (req, res) => {
 exports.checkAuth = async (req, res) => {
   if (req.user) {
     const token = jwt.sign(req.user, process.env.JWT_SECRET);
-    res.json(token);
+    res.json(req.user);
   } else {
     res.sendStatus(401);
   }
